@@ -28,6 +28,32 @@
         right: 0;
         margin: auto;
       }
+      #header {
+        width: calc(100vw - 120px);
+        height: 60px;
+        padding: 10px 60px 0 60px;
+        background-color: rgba(10, 10, 10, 0.5);
+        display: flex;
+      }
+      #title {
+        font-size: 30px;
+        color: #fff;
+        margin-left: 20px;
+      }
+      #footer {
+        width: calc(100vw - 120px);
+        /*height: 60px;*/
+        padding: 10px 60px 0 60px;
+        background-color: rgba(10, 10, 10, 0.5);
+        /*display: flex;*/
+        bottom: 0;
+      }
+      .footerItem {
+        margin-bottom: 5px;
+        width: 100%;
+        color: #fff;
+        font-size: 20px;
+      }
     </style>
 	<script>var VisionR={}</script>
     <script src="visionr-zbar.min.js"></script>
@@ -36,12 +62,23 @@
 <body>
 	<video id="video" class="full"></video>
     <canvas id="canvas" class="full middle"></canvas>
+    <div id="header" class="full">
+    	HEADER
+    </div>
+    <div id="footer" class="full">
+    	FOOTER
+    </div>
     <script>
-    VisionR.zbar(function(api){   		
+
+    VisionR.zbar(function(api){
+    		
     	var video = document.querySelector("#video");
     	var canvas = document.querySelector("#canvas");
+    	var footer = document.querySelector("#footer");
     	api.scanCode(video,canvas,function(symbols,again) {
 	  		  //----------------------------
+    		  console.log(Date.now()+" | SCANNED ",symbols);
+	  		  
     		  if (!symbols.length) {
     			  return requestAnimationFrame(again);
     			  //return setTimeout(again,50);
@@ -51,6 +88,9 @@
 	   		  const width = canvas.width;
 	   		  const height = canvas.height;
 	   		  ctx.clearRect(0, 0, width, height);
+	   		  while (footer.firstChild) {
+		   		    footer.removeChild(footer.lastChild);
+	   		  }
 	   		  ctx.font = '20px serif';
 	   		  ctx.strokeStyle = '#00ff00';
 	   		  ctx.fillStyle = '#ff0000';
@@ -70,7 +110,11 @@
 	   		    ctx.closePath();
 	   		    ctx.stroke();
 	   		    ctx.fillText('#' + i, points[0].x, points[0].y - 10);
-	   		    alert(`#${i}: Type: ${sym.typeName}; Value: "${sym.decode()}"`);
+	
+	   		    const div = document.createElement('div');
+	   		    div.className = 'footerItem';
+	   		    div.innerText = `#${i}: Type: ${sym.typeName}; Value: "${sym.decode()}"`
+	   		    footer.appendChild(div);
 	   		  }
     	});	
     });    	
