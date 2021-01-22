@@ -77,11 +77,10 @@
     	var footer = document.querySelector("#footer");
     	api.scanCode(video,canvas,function(symbols,again) {
 	  		  //----------------------------
-    		  console.log(Date.now()+" | SCANNED ",symbols);
-	  		  
+    		  console.log(Date.now()+" | SCANNED ",symbols);	  		  
     		  if (!symbols.length) {
-    			  return requestAnimationFrame(again);
-    			  //return setTimeout(again,50);
+    			  //return requestAnimationFrame(again);
+    			  return setTimeout(again,10);
     		  }
     		  //----------------------------
        		  const ctx = canvas.getContext('2d');
@@ -116,6 +115,8 @@
 	   		    div.innerText = `#${i}: Type: ${sym.typeName}; Value: "${sym.decode()}"`
 	   		    footer.appendChild(div);
 	   		  }
+	   		  //---------------------------------
+	   		  return setTimeout(again,50);
     	});	
     });    	
     </script>
