@@ -1,1 +1,122 @@
-"Hello World" 
+<!doctype html>
+<html>
+<head>
+ <!--
+  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE10" />  -->
+  <!-- ^^ NOT NEEDED for VisionR Forms but IE does not allow IFRAME embedding with different emulation (HORROR!) ^^ -->
+  <!-- This does not impact emulation in MS Edge, because this meta is skipped  -->
+  <meta charset="utf-8">
+  <base href=".">
+  <title>VisionR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="translucent">
+  <style>
+      html,body {
+        margin: 0;
+        padding: 0;
+        background-color: #878787;
+      }
+      .full {
+        display:block;
+        position: absolute;
+      }
+      .middle {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+      }
+      #header {
+        width: calc(100vw - 120px);
+        height: 60px;
+        padding: 10px 60px 0 60px;
+        background-color: rgba(10, 10, 10, 0.5);
+        display: flex;
+      }
+      #title {
+        font-size: 30px;
+        color: #fff;
+        margin-left: 20px;
+      }
+      #footer {
+        width: calc(100vw - 120px);
+        /*height: 60px;*/
+        padding: 10px 60px 0 60px;
+        background-color: rgba(10, 10, 10, 0.5);
+        /*display: flex;*/
+        bottom: 0;
+      }
+      .footerItem {
+        margin-bottom: 5px;
+        width: 100%;
+        color: #fff;
+        font-size: 20px;
+      }
+    </style>
+	<script>var VisionR={}</script>
+    <script src="visionr-zbar.min.js"></script>
+</head>
+
+<body>
+	<video id="video" class="full"></video>
+    <canvas id="canvas" class="full middle"></canvas>
+    <div id="header" class="full">
+    	HEADER
+    </div>
+    <div id="footer" class="full">
+    	FOOTER
+    </div>
+    <script>
+
+    VisionR.zbar(function(api){
+    		
+    	var video = document.querySelector("#video");
+    	var canvas = document.querySelector("#canvas");
+    	var footer = document.querySelector("#footer");
+    	api.scanCode(video,canvas,function(symbols,again) {
+	  		  //----------------------------
+    		  console.log(Date.now()+" | SCANNED ",symbols);
+	  		  
+    		  if (!symbols.length) {
+    			  return requestAnimationFrame(again);
+    			  //return setTimeout(again,50);
+    		  }
+    		  //----------------------------
+       		  const ctx = canvas.getContext('2d');
+	   		  const width = canvas.width;
+	   		  const height = canvas.height;
+	   		  ctx.clearRect(0, 0, width, height);
+	   		  while (footer.firstChild) {
+		   		    footer.removeChild(footer.lastChild);
+	   		  }
+	   		  ctx.font = '20px serif';
+	   		  ctx.strokeStyle = '#00ff00';
+	   		  ctx.fillStyle = '#ff0000';
+	   		  ctx.lineWidth = 6;
+	   		  for (let i = 0; i < symbols.length; ++i) {
+	   		    const sym = symbols[i];
+	   		    const points = sym.points;
+	   		    ctx.beginPath();
+	   		    for (let j = 0; j < points.length; ++j) {
+	   		      const { x, y } = points[j];
+	   		      if (j === 0) {
+	   		        ctx.moveTo(x, y);
+	   		      } else {
+	   		        ctx.lineTo(x, y);
+	   		      }
+	   		    }
+	   		    ctx.closePath();
+	   		    ctx.stroke();
+	   		    ctx.fillText('#' + i, points[0].x, points[0].y - 10);
+	
+	   		    const div = document.createElement('div');
+	   		    div.className = 'footerItem';
+	   		    div.innerText = `#${i}: Type: ${sym.typeName}; Value: "${sym.decode()}"`
+	   		    footer.appendChild(div);
+	   		  }
+    	});	
+    });    	
+    </script>
+</body>
